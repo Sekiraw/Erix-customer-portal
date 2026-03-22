@@ -1,21 +1,19 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { cookies, headers } from 'next/headers'
+import { headers } from 'next/headers'
+import { randomBytes } from 'crypto'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import {
-  sendRegistrationConfirmationEmail,
-  sendRegistrationSuccessEmail,
-  notifyAllEmployeesByEmail,
-} from '@/lib/email/service'
+import { sendRegistrationConfirmationEmail } from '@/lib/email/service'
 
 export type RegisterState = {
   error?: string
 }
 
-/** Version string logged alongside every T&C acceptance. Bump when T&C text changes. */
 const TERMS_VERSION = '1.0'
+/** Verification token is valid for 24 hours */
+const TOKEN_TTL_MS = 24 * 60 * 60 * 1000
 
 const copy = {
   required: { en: 'All fields are required.', hu: 'Minden mező kötelező.' },
@@ -66,15 +64,12 @@ export async function registerAction(
   if (!firstName || !lastName || !email || !password || !confirmPassword) {
     return { error: copy.required[locale] }
   }
-
   if (!termsAccepted) {
     return { error: copy.termsRequired[locale] }
   }
-
   if (password !== confirmPassword) {
     return { error: copy.mismatch[locale] }
   }
-
   if (!isStrongPassword(password)) {
     return { error: copy.passwordWeak[locale] }
   }
@@ -93,8 +88,11 @@ export async function registerAction(
     requestHeaders.get('x-real-ip') ??
     'unknown'
 
+  const verificationToken = randomBytes(32).toString('hex')
+  const tokenExpiresAt = new Date(Date.now() + TOKEN_TTL_MS).toISOString()
+
   try {
-    const user = await payload.create({
+    await payload.create({
       collection: 'users',
       data: {
         firstName,
@@ -105,50 +103,21 @@ export async function registerAction(
         termsAcceptedAt: new Date().toISOString(),
         termsAcceptedIp: ip,
         termsVersion: TERMS_VERSION,
+        emailVerified: false,
+        emailVerificationToken: verificationToken,
+        emailVerificationTokenExpiresAt: tokenExpiresAt,
       },
       overrideAccess: true,
     })
 
-    const userData = { email, firstName, lastName }
+    const appUrl = process.env.APP_URL ?? 'http://localhost:3000'
+    const verificationUrl = `${appUrl}/api/verify-email?token=${verificationToken}`
 
-    // Auto-confirm: send confirmation email then immediate success email (pseudo stubs)
-    await sendRegistrationConfirmationEmail(userData)
-    await sendRegistrationSuccessEmail(userData)
-
-    // Notify all staff via email (pseudo stubs) and create a portal notification
-    await notifyAllEmployeesByEmail(userData, payload)
-    await payload.create({
-      collection: 'notifications',
-      data: {
-        type: 'new_registration',
-        message: `Új ügyfél regisztrált: ${lastName} ${firstName} (${email})`,
-        read: false,
-        relatedUser: user.id,
-      },
-      overrideAccess: true,
-    })
-
-    // Auto-login the newly registered user
-    const loginResult = await payload.login({
-      collection: 'users',
-      data: { email, password },
-    })
-
-    const token = loginResult?.token
-    const exp = loginResult?.exp ? new Date(loginResult.exp * 1000) : undefined
-    if (token) {
-      ;(await cookies()).set('payload-token', token, {
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        ...(exp ? { expires: exp } : {}),
-      })
-    }
+    await sendRegistrationConfirmationEmail({ email, firstName, lastName }, verificationUrl)
   } catch (err) {
     console.error('registration error', err)
     return { error: copy.generic[locale] }
   }
 
-  redirect('/admin')
+  redirect('/register/check-email')
 }

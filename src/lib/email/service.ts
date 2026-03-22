@@ -1,43 +1,60 @@
+import { sendEmail } from './client'
+import {
+  registrationConfirmationTemplate,
+  registrationSuccessTemplate,
+  staffNewUserNotificationTemplate,
+  type UserData,
+} from './templates'
+
+export type { UserData }
+
+// ---------------------------------------------------------------------------
+// Registration flow
+// ---------------------------------------------------------------------------
+
 /**
- * Email service — pseudo/stub implementation.
- * TODO: Replace console.log calls with an actual email provider (e.g., Resend, SendGrid, Nodemailer).
+ * Email 1 — sent immediately after the user submits the registration form.
+ * Contains the verification link the user must click to activate their account.
  */
-
-export type RegistrationEmailData = {
-  email: string
-  firstName: string
-  lastName: string
-}
-
-/** Sent immediately after the user submits the registration form (confirmation step). */
-export async function sendRegistrationConfirmationEmail(user: RegistrationEmailData): Promise<void> {
-  console.log(`[EMAIL STUB] Registration confirmation → ${user.email}`)
-  // TODO: Send an email asking the user to confirm their email address.
-}
-
-/** Sent after the email is confirmed (auto-confirmed in current implementation). */
-export async function sendRegistrationSuccessEmail(user: RegistrationEmailData): Promise<void> {
-  console.log(`[EMAIL STUB] Registration success → ${user.email}`)
-  // TODO: Send a welcome / successful registration email.
-}
-
-/** Sent to a single employee/manager/IT staff member when a new customer registers. */
-export async function sendEmployeeNewUserNotificationEmail(
-  newUser: RegistrationEmailData,
-  employeeEmail: string,
+export async function sendRegistrationConfirmationEmail(
+  user: UserData,
+  verificationUrl: string,
 ): Promise<void> {
-  console.log(
-    `[EMAIL STUB] New user notification → ${employeeEmail} (new customer: ${newUser.email})`,
-  )
-  // TODO: Send a notification email to the employee.
+  const { subject, html } = registrationConfirmationTemplate(user, verificationUrl)
+  await sendEmail({ to: user.email, subject, html })
 }
 
 /**
- * Looks up all employees/managers/IT staff in the database and sends them
- * a notification email about the newly registered customer.
+ * Email 2 — sent right after auto-confirmation.
+ * Tells the user their account is active and ready to use.
+ */
+export async function sendRegistrationSuccessEmail(user: UserData): Promise<void> {
+  const { subject, html } = registrationSuccessTemplate(user)
+  await sendEmail({ to: user.email, subject, html })
+}
+
+// ---------------------------------------------------------------------------
+// Staff notifications
+// ---------------------------------------------------------------------------
+
+/**
+ * Notifies a single staff member about the newly registered customer.
+ */
+async function sendStaffNotificationEmail(
+  newUser: UserData,
+  recipient: { email: string; firstName: string; lastName: string },
+): Promise<void> {
+  const recipientName = `${recipient.lastName} ${recipient.firstName}`
+  const { subject, html } = staffNewUserNotificationTemplate(newUser, recipientName)
+  await sendEmail({ to: recipient.email, subject, html })
+}
+
+/**
+ * Looks up every employee / manager / IT staff in the database and sends
+ * each one a notification email about the newly registered customer.
  */
 export async function notifyAllEmployeesByEmail(
-  newUser: RegistrationEmailData,
+  newUser: UserData,
   payload: import('payload').Payload,
 ): Promise<void> {
   const { docs: staff } = await payload.find({
@@ -47,7 +64,5 @@ export async function notifyAllEmployeesByEmail(
     limit: 200,
   })
 
-  await Promise.all(
-    staff.map((member) => sendEmployeeNewUserNotificationEmail(newUser, member.email)),
-  )
+  await Promise.all(staff.map((member) => sendStaffNotificationEmail(newUser, member)))
 }

@@ -112,6 +112,8 @@ export default function CustomNav() {
   }, [])
 
   useEffect(() => {
+    if (!isStaffRole(userRole)) return
+
     const cached = loadCachedCounts()
     if (cached) setCounts(cached)
 
@@ -130,7 +132,7 @@ export default function CustomNav() {
       }
     }
     fetchCounts()
-  }, [])
+  }, [userRole])
 
   const sidebarCollapsed = isMobile || collapsed
 

@@ -91,5 +91,29 @@ export const Users: CollectionConfig = {
       label: { en: 'Terms Version', hu: 'ÁSZF verzió' },
       admin: { readOnly: true, position: 'sidebar' },
     },
+    // Email verification
+    {
+      name: 'emailVerified',
+      type: 'checkbox',
+      defaultValue: false,
+      label: { en: 'Email Verified', hu: 'E-mail megerősítve' },
+      admin: { readOnly: true, position: 'sidebar' },
+    },
+    {
+      name: 'emailVerifiedAt',
+      type: 'date',
+      label: { en: 'Email Verified At', hu: 'E-mail megerősítve' },
+      admin: { readOnly: true, position: 'sidebar' },
+    },
+    {
+      name: 'emailVerificationToken',
+      type: 'text',
+      admin: { hidden: true },
+    },
+    {
+      name: 'emailVerificationTokenExpiresAt',
+      type: 'date',
+      admin: { hidden: true },
+    },
   ],
 }

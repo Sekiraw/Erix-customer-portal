@@ -132,6 +132,10 @@ export interface User {
   termsAcceptedAt?: string | null;
   termsAcceptedIp?: string | null;
   termsVersion?: string | null;
+  emailVerified?: boolean | null;
+  emailVerifiedAt?: string | null;
+  emailVerificationToken?: string | null;
+  emailVerificationTokenExpiresAt?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -271,6 +275,10 @@ export interface UsersSelect<T extends boolean = true> {
   termsAcceptedAt?: T;
   termsAcceptedIp?: T;
   termsVersion?: T;
+  emailVerified?: T;
+  emailVerifiedAt?: T;
+  emailVerificationToken?: T;
+  emailVerificationTokenExpiresAt?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
