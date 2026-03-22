@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation, useAuth } from '@payloadcms/ui'
-import { LayoutDashboard, UserCog, Bell, Settings, LogOut, ChevronLeft } from 'lucide-react'
+import { LayoutDashboard, UserCog, Bell, Settings, LogOut, ChevronLeft, ShieldCheck, ShieldOff } from 'lucide-react'
 
 import { useAppIcon } from '@/app/components/Misc/useAppIcon'
 import { useAppTitle } from '@/app/components/Misc/useAppTitle'
@@ -206,6 +206,29 @@ export default function CustomNav() {
       </nav>
 
       <div className="crm-sidebar__footer">
+        {/* User card */}
+        <Link
+          href="/account/2fa"
+          className="crm-sidebar__link"
+          title={lang === 'hu' ? 'Fiók beállítások' : 'Account settings'}
+        >
+          {(user as User | null)?.twoFactorEnabled ? (
+            <ShieldCheck className="crm-sidebar__link-icon shrink-0 text-green-400" />
+          ) : (
+            <ShieldOff className="crm-sidebar__link-icon shrink-0" />
+          )}
+          <span className="crm-sidebar__link-label flex flex-col leading-tight overflow-hidden">
+            <span className="truncate text-sm font-medium">
+              {(user as User | null)?.firstName} {(user as User | null)?.lastName}
+            </span>
+            <span className="truncate text-xs opacity-50">
+              {(user as User | null)?.twoFactorEnabled
+                ? lang === 'hu' ? '2FA bekapcsolva' : '2FA enabled'
+                : lang === 'hu' ? '2FA kikapcsolva' : '2FA disabled'}
+            </span>
+          </span>
+        </Link>
+
         <Link href="/admin/logout" className="crm-sidebar__link crm-sidebar__link--logout">
           <LogOut className="crm-sidebar__link-icon" />
           <span className="crm-sidebar__link-label">

@@ -115,5 +115,18 @@ export const Users: CollectionConfig = {
       type: 'date',
       admin: { hidden: true },
     },
+    // Two-factor authentication
+    {
+      name: 'twoFactorEnabled',
+      type: 'checkbox',
+      defaultValue: false,
+      label: { en: 'Two-Factor Auth Enabled', hu: '2FA engedélyezve' },
+      admin: { readOnly: true, position: 'sidebar' },
+    },
+    {
+      name: 'twoFactorSecret',
+      type: 'text',
+      admin: { hidden: true },
+    },
   ],
 }

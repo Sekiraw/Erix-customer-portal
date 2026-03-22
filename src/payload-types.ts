@@ -136,6 +136,8 @@ export interface User {
   emailVerifiedAt?: string | null;
   emailVerificationToken?: string | null;
   emailVerificationTokenExpiresAt?: string | null;
+  twoFactorEnabled?: boolean | null;
+  twoFactorSecret?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -279,6 +281,8 @@ export interface UsersSelect<T extends boolean = true> {
   emailVerifiedAt?: T;
   emailVerificationToken?: T;
   emailVerificationTokenExpiresAt?: T;
+  twoFactorEnabled?: T;
+  twoFactorSecret?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

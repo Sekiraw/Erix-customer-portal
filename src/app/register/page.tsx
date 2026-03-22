@@ -30,7 +30,7 @@ export default async function RegisterPage() {
 
           <p className="mt-6 text-sm text-black/60 text-center">
             {copy.loginLink[lang]}{' '}
-            <a href="/admin/login" className="text-chart-3 font-medium hover:underline">
+            <a href="/login" className="text-chart-3 font-medium hover:underline">
               {copy.loginLinkAnchor[lang]}
             </a>
           </p>
