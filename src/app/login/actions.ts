@@ -5,8 +5,11 @@ import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import type { User } from '@/payload-types'
+import { sendFailedLoginAttemptsEmail } from '@/lib/email/service'
 
 export type LoginState = { error?: string }
+
+const FAILED_LOGIN_ALERT_THRESHOLD = 5
 
 const copy = {
   required: { en: 'Email and password are required.', hu: 'Az e-mail és jelszó megadása kötelező.' },
@@ -30,6 +33,8 @@ export async function loginAction(
   try {
     loginResult = await payload.login({ collection: 'users', data: { email, password } })
   } catch {
+    // Increment failed attempt counter for this email (if account exists)
+    void trackFailedLogin(payload, email)
     return { error: copy.invalid[locale] }
   }
 
@@ -42,8 +47,17 @@ export async function loginAction(
     overrideAccess: true,
   }) as User
 
+  // Reset failed login counter on successful authentication
+  if ((user.failedLoginAttempts ?? 0) > 0) {
+    void payload.update({
+      collection: 'users',
+      id: user.id,
+      data: { failedLoginAttempts: 0, lastFailedLoginAt: null } as never,
+      overrideAccess: true,
+    })
+  }
+
   const token = loginResult.token
-  const exp = loginResult.exp ? new Date(loginResult.exp * 1000) : undefined
   const cookieOpts = {
     httpOnly: true,
     sameSite: 'strict' as const,
@@ -53,14 +67,53 @@ export async function loginAction(
   const jar = await cookies()
 
   if (user.twoFactorEnabled) {
-    // Park the valid token until the TOTP step is completed
+    // Destroy any existing session before the 2FA step.
+    // Without this, a user with a still-valid payload-token + payload-2fa-ok
+    // from a previous session could skip the 2FA page by navigating directly
+    // to /admin — those stale cookies would still satisfy the middleware.
+    jar.delete('payload-token')
+    jar.delete('payload-2fa-ok')
+    // Park the new token until TOTP is verified
     jar.set('payload-2fa-pending', token, { ...cookieOpts, maxAge: 5 * 60 })
     redirect('/login/2fa')
   }
 
-  // No 2FA required — grant session and mark auth as complete
-  jar.set('payload-token', token, { ...cookieOpts, ...(exp ? { expires: exp } : {}) })
-  jar.set('payload-2fa-ok', '1', { ...cookieOpts, ...(exp ? { expires: exp } : {}) })
+  // MFA not yet configured — force setup before granting a session
+  jar.set('payload-mfa-setup', token, { ...cookieOpts, maxAge: 5 * 60 })
+  redirect('/login/setup-mfa')
+}
 
-  redirect('/admin')
+async function trackFailedLogin(
+  payload: Awaited<ReturnType<typeof import('payload').getPayload>>,
+  email: string,
+): Promise<void> {
+  const { docs } = await payload.find({
+    collection: 'users',
+    where: { email: { equals: email } },
+    limit: 1,
+    overrideAccess: true,
+  })
+
+  if (docs.length === 0) return
+
+  const user = docs[0]!
+  const attempts = ((user.failedLoginAttempts as number | null) ?? 0) + 1
+
+  await payload.update({
+    collection: 'users',
+    id: user.id,
+    data: { failedLoginAttempts: attempts, lastFailedLoginAt: new Date().toISOString() } as never,
+    overrideAccess: true,
+  })
+
+  // Send notification at the threshold and every multiple thereafter
+  if (attempts % FAILED_LOGIN_ALERT_THRESHOLD === 0) {
+    const appUrl = process.env.APP_URL ?? 'http://localhost:3000'
+    const resetUrl = `${appUrl}/forgot-password`
+    await sendFailedLoginAttemptsEmail(
+      { firstName: user.firstName, lastName: user.lastName, email: user.email },
+      attempts,
+      resetUrl,
+    )
+  }
 }

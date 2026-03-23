@@ -1,17 +1,16 @@
 import { headers } from 'next/headers'
-import RegisterForm from './RegisterForm'
+import ForgotPasswordForm from './ForgotPasswordForm'
 
 const copy = {
-  title: { en: 'Registration', hu: 'Regisztráció' },
+  title: { en: 'Forgot password', hu: 'Elfelejtett jelszó' },
   subtitle: {
-    en: 'Create a client account to access the portal.',
-    hu: 'Hozzon létre ügyfélfiókot a portál eléréséhez.',
+    en: "Enter your email and we'll send you a reset link.",
+    hu: 'Adja meg az e-mail címét, és küldünk egy visszaállítási linket.',
   },
-  loginLink: { en: 'Already have an account?', hu: 'Már van fiókja?' },
-  loginLinkAnchor: { en: 'Sign in', hu: 'Bejelentkezés' },
+  back: { en: 'Back to login', hu: 'Vissza a bejelentkezéshez' },
 }
 
-export default async function RegisterPage() {
+export default async function ForgotPasswordPage() {
   const acceptLang = (await headers()).get('accept-language')?.toLowerCase() ?? ''
   const lang = acceptLang.startsWith('en') ? 'en' : 'hu'
 
@@ -23,12 +22,11 @@ export default async function RegisterPage() {
           <p className="text-sm text-black/70">{copy.subtitle[lang]}</p>
         </div>
 
-        <RegisterForm lang={lang} />
+        <ForgotPasswordForm lang={lang} />
 
         <p className="mt-6 text-sm text-black/60 text-center">
-          {copy.loginLink[lang]}{' '}
           <a href="/login" className="text-chart-3 font-medium hover:underline">
-            {copy.loginLinkAnchor[lang]}
+            {copy.back[lang]}
           </a>
         </p>
       </div>

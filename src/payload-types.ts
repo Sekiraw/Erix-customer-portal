@@ -89,12 +89,8 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {
-    'app-settings': AppSetting;
-  };
-  globalsSelect: {
-    'app-settings': AppSettingsSelect<false> | AppSettingsSelect<true>;
-  };
+  globals: {};
+  globalsSelect: {};
   locale: null;
   user: User;
   jobs: {
@@ -126,7 +122,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
-  role: 'customer' | 'employee' | 'manager' | 'it_staff';
+  role: 'client' | 'employee' | 'manager' | 'it_staff';
   firstName: string;
   lastName: string;
   termsAcceptedAt?: string | null;
@@ -136,6 +132,9 @@ export interface User {
   emailVerifiedAt?: string | null;
   emailVerificationToken?: string | null;
   emailVerificationTokenExpiresAt?: string | null;
+  failedLoginAttempts?: number | null;
+  lastFailedLoginAt?: string | null;
+  resetPasswordTokenExpiresAt?: string | null;
   twoFactorEnabled?: boolean | null;
   twoFactorSecret?: string | null;
   updatedAt: string;
@@ -281,6 +280,9 @@ export interface UsersSelect<T extends boolean = true> {
   emailVerifiedAt?: T;
   emailVerificationToken?: T;
   emailVerificationTokenExpiresAt?: T;
+  failedLoginAttempts?: T;
+  lastFailedLoginAt?: T;
+  resetPasswordTokenExpiresAt?: T;
   twoFactorEnabled?: T;
   twoFactorSecret?: T;
   updatedAt?: T;
@@ -368,34 +370,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "app-settings".
- */
-export interface AppSetting {
-  id: number;
-  branding: {
-    appIcon?: (number | null) | Media;
-    appTitle: string;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "app-settings_select".
- */
-export interface AppSettingsSelect<T extends boolean = true> {
-  branding?:
-    | T
-    | {
-        appIcon?: T;
-        appTitle?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

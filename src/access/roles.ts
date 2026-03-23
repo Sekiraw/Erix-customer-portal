@@ -28,8 +28,8 @@ export const isManager: Access = ({ req: { user } }) => {
   return (MANAGER_ROLES as readonly string[]).includes((user as User).role)
 }
 
-/** Only customers */
-export const isCustomer: Access = ({ req: { user } }) => {
+/** Only clients */
+export const isClient: Access = ({ req: { user } }) => {
   if (!user) return false
-  return (user as User).role === 'customer'
+  return (user as User).role === 'client'
 }

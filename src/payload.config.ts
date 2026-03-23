@@ -39,7 +39,7 @@ export default buildConfig({
       },
     },
     meta: {
-      title: 'ERP Portál',
+      title: 'Customer Portal',
       titleSuffix: undefined,
       icons: [
         {
@@ -70,7 +70,7 @@ export default buildConfig({
     ...groupCollections('First', FirstCollectionGroup),
     ...groupCollections('Hidden', HiddenCollectionGroup),
   ],
-  globals: [AppSettings],
+  // globals: [AppSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

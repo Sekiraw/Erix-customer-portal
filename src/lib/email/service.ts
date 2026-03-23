@@ -1,5 +1,7 @@
 import { sendEmail } from './client'
 import {
+  failedLoginAttemptsTemplate,
+  passwordResetTemplate,
   registrationConfirmationTemplate,
   registrationSuccessTemplate,
   staffNewUserNotificationTemplate,
@@ -34,11 +36,40 @@ export async function sendRegistrationSuccessEmail(user: UserData): Promise<void
 }
 
 // ---------------------------------------------------------------------------
+// Failed login alerts
+// ---------------------------------------------------------------------------
+
+/**
+ * Notifies the account owner about multiple consecutive failed login attempts.
+ * The resetUrl lets them immediately change their password if the attempts were unauthorized.
+ */
+export async function sendFailedLoginAttemptsEmail(
+  user: UserData,
+  attempts: number,
+  resetUrl: string,
+): Promise<void> {
+  const { subject, html } = failedLoginAttemptsTemplate(user, attempts, resetUrl)
+  await sendEmail({ to: user.email, subject, html })
+}
+
+// ---------------------------------------------------------------------------
+// Password reset
+// ---------------------------------------------------------------------------
+
+/**
+ * Sends a password reset link to the user.
+ */
+export async function sendPasswordResetEmail(user: UserData, resetUrl: string): Promise<void> {
+  const { subject, html } = passwordResetTemplate(user, resetUrl)
+  await sendEmail({ to: user.email, subject, html })
+}
+
+// ---------------------------------------------------------------------------
 // Staff notifications
 // ---------------------------------------------------------------------------
 
 /**
- * Notifies a single staff member about the newly registered customer.
+ * Notifies a single staff member about the newly registered client.
  */
 async function sendStaffNotificationEmail(
   newUser: UserData,
@@ -51,7 +82,7 @@ async function sendStaffNotificationEmail(
 
 /**
  * Looks up every employee / manager / IT staff in the database and sends
- * each one a notification email about the newly registered customer.
+ * each one a notification email about the newly registered client.
  */
 export async function notifyAllEmployeesByEmail(
   newUser: UserData,

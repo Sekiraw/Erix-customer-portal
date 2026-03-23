@@ -1,14 +1,21 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation, useAuth } from '@payloadcms/ui'
-import { LayoutDashboard, UserCog, Bell, Settings, LogOut, ChevronLeft, ShieldCheck, ShieldOff } from 'lucide-react'
-
-import { useAppIcon } from '@/app/components/Misc/useAppIcon'
-import { useAppTitle } from '@/app/components/Misc/useAppTitle'
+import {
+  LayoutDashboard,
+  UserCog,
+  Bell,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ShieldCheck,
+  ShieldOff,
+} from 'lucide-react'
+import logo from '@/app/public/logo.png'
 import { isStaffRole } from '@/lib/auth/roles'
 import type { User } from '@/payload-types'
 
@@ -35,12 +42,12 @@ const NAV_ITEMS = [
     showCount: true,
     staffOnly: true,
   },
-  {
-    href: '/admin/globals/app-settings',
-    label: { hu: 'Beállítások', en: 'Settings' },
-    icon: Settings,
-    section: 'manage',
-  },
+  // {
+  //   href: '/admin/globals/app-settings',
+  //   label: { hu: 'Beállítások', en: 'Settings' },
+  //   icon: Settings,
+  //   section: 'manage',
+  // },
 ]
 
 const COUNTS_CACHE_KEY = 'nav-counts'
@@ -75,21 +82,29 @@ export default function CustomNav() {
   const pathname = usePathname()
   const { i18n } = useTranslation()
   const lang = (i18n?.language as 'hu' | 'en') || 'hu'
-  const { src: iconSrc, alt: iconAlt } = useAppIcon()
-  const appTitle = useAppTitle()
+  const { src: iconSrc, alt: iconAlt } = { src: logo, alt: 'App icon' }
+  const appTitle = 'Customer Portal' // useAppTitle()
   const { user } = useAuth()
   const userRole = (user as User | null)?.role
 
-  const getIsMobile = () =>
-    typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : false
-
-  const [isMobile, setIsMobile] = useState(getIsMobile)
-  const [collapsed, setCollapsed] = useState(() => (getIsMobile() ? true : false))
+  // Both states start as false (server-safe) — the useEffect below updates
+  // them from window.matchMedia after hydration to avoid SSR/client mismatch.
+  const [isMobile, setIsMobile] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const [counts, setCounts] = useState<Record<string, number>>({})
 
-  const visibleItems = NAV_ITEMS.filter(
-    (i) => !i.staffOnly || isStaffRole(userRole),
-  )
+  // Restore the desktop collapsed preference before first paint.
+  // Mobile collapse is handled entirely by CSS so no JS is needed there.
+  useLayoutEffect(() => {
+    const mobile = window.matchMedia('(max-width: 768px)').matches
+    setIsMobile(mobile)
+    if (!mobile) {
+      const saved = localStorage.getItem('sidebar-collapsed')
+      if (saved !== null) setCollapsed(saved === 'true')
+    }
+  }, [])
+
+  const visibleItems = NAV_ITEMS.filter((i) => !i.staffOnly || isStaffRole(userRole))
   const mainItems = visibleItems.filter((i) => i.section === 'main')
   const manageItems = visibleItems.filter((i) => i.section === 'manage')
 
@@ -104,12 +119,15 @@ export default function CustomNav() {
       setIsMobile(matches)
       if (matches) setCollapsed(true)
     }
-
-    applyState(mql.matches)
     const listener = (event: MediaQueryListEvent) => applyState(event.matches)
     mql.addEventListener('change', listener)
     return () => mql.removeEventListener('change', listener)
   }, [])
+
+  // Persist desktop collapse preference so it survives page navigations
+  useEffect(() => {
+    if (!isMobile) localStorage.setItem('sidebar-collapsed', String(collapsed))
+  }, [collapsed, isMobile])
 
   useEffect(() => {
     if (!isStaffRole(userRole)) return
@@ -119,10 +137,9 @@ export default function CustomNav() {
 
     const fetchCounts = async () => {
       try {
-        const res = await fetch(
-          `/api/notifications?limit=0&where[read][equals]=false`,
-          { credentials: 'include' },
-        )
+        const res = await fetch(`/api/notifications?limit=0&where[read][equals]=false`, {
+          credentials: 'include',
+        })
         const data = await res.json()
         const results = { notifications: data?.totalDocs ?? 0 }
         setCounts(results)
@@ -187,7 +204,7 @@ export default function CustomNav() {
         })}
       </nav>
 
-      <div className="crm-sidebar__section-label">{lang === 'hu' ? 'Kezelés' : 'Management'}</div>
+      {/* <div className="crm-sidebar__section-label">{lang === 'hu' ? 'Kezelés' : 'Management'}</div>
       <nav className="crm-sidebar__nav">
         {manageItems.map((item) => {
           const Icon = item.icon
@@ -203,7 +220,7 @@ export default function CustomNav() {
             </Link>
           )
         })}
-      </nav>
+      </nav> */}
 
       <div className="crm-sidebar__footer">
         {/* User card */}
@@ -223,8 +240,12 @@ export default function CustomNav() {
             </span>
             <span className="truncate text-xs opacity-50">
               {(user as User | null)?.twoFactorEnabled
-                ? lang === 'hu' ? '2FA bekapcsolva' : '2FA enabled'
-                : lang === 'hu' ? '2FA kikapcsolva' : '2FA disabled'}
+                ? lang === 'hu'
+                  ? '2FA bekapcsolva'
+                  : '2FA enabled'
+                : lang === 'hu'
+                  ? '2FA kikapcsolva'
+                  : '2FA disabled'}
             </span>
           </span>
         </Link>

@@ -34,6 +34,16 @@ body:has(.crm-sidebar--collapsed) .template-default__wrap {
   width: 100% !important;
 }
 
+/* Mobile: sidebar is always 72 px wide (CSS-forced, never toggled).
+   Lock the content margin immediately so the JS transition never fires. */
+@media (max-width: 768px) {
+  .template-default__wrap {
+    margin-left: 72px !important;
+    width: calc(100vw - 72px) !important;
+    transition: none !important;
+  }
+}
+
 /* Mobile behavior */
 @media (max-width: 768px) {
   /* Reduce horizontal padding on narrow screens */

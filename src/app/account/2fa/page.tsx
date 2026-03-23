@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
 import { getUser } from '@/lib/auth/user'
 import type { User } from '@/payload-types'
 import TwoFactorSetupClient from './TwoFactorSetupClient'
@@ -16,8 +16,13 @@ export default async function TwoFactorSetupPage() {
   const { user } = await getUser()
   if (!user) redirect('/login')
 
+  // Prefer the language the user selected in their Payload profile (payload-lng cookie),
+  // fall back to the browser's Accept-Language header.
+  const jar = await cookies()
+  const payloadLng = jar.get('payload-lng')?.value?.toLowerCase()
   const acceptLang = (await headers()).get('accept-language')?.toLowerCase() ?? ''
-  const lang = acceptLang.startsWith('en') ? 'en' : 'hu'
+  const rawLang = payloadLng ?? acceptLang
+  const lang = rawLang.startsWith('en') ? 'en' : 'hu'
   const typedUser = user as User
 
   return (
@@ -30,6 +35,7 @@ export default async function TwoFactorSetupPage() {
           </div>
 
           <TwoFactorSetupClient
+            lang={lang}
             enabled={typedUser.twoFactorEnabled ?? false}
             qrDataUrl={null}
             secret={null}

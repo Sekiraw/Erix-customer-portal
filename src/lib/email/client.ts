@@ -47,7 +47,7 @@ export type SendEmailOptions = {
 }
 
 export async function sendEmail({ to, subject, html, from }: SendEmailOptions): Promise<void> {
-  const sender = from ?? process.env.EMAIL_FROM ?? 'ERP Portál <noreply@example.com>'
+  const sender = from ?? process.env.EMAIL_FROM ?? 'Customer Portal <noreply@example.com>'
   const transport = getTransport()
 
   await transport.sendMail({

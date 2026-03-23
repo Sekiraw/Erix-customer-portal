@@ -6,7 +6,6 @@ import type { ServerFunctionClient } from 'payload'
 import { handleServerFunctions, RootLayout } from '@payloadcms/next/layouts'
 import React from 'react'
 
-import { AppSettingsRefreshHandler } from '@/app/components/Settings/AppSettingsRefreshHandler'
 import { importMap } from './admin/importMap.js'
 import './custom.css'
 import '@/styles/payloadStyles.css'
@@ -27,7 +26,6 @@ const serverFunction: ServerFunctionClient = async function (args) {
 
 const Layout = ({ children }: Args) => (
   <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
-    <AppSettingsRefreshHandler />
     {children}
   </RootLayout>
 )

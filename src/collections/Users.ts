@@ -29,11 +29,11 @@ export const Users: CollectionConfig = {
         hu: 'Szerepkör',
       },
       required: true,
-      defaultValue: 'customer',
+      defaultValue: 'client',
       options: [
         {
-          label: { en: 'Customer', hu: 'Ügyfél' },
-          value: 'customer',
+          label: { en: 'Client', hu: 'Ügyfél' },
+          value: 'client',
         },
         {
           label: { en: 'Employee', hu: 'Munkavállaló' },
@@ -112,6 +112,29 @@ export const Users: CollectionConfig = {
     },
     {
       name: 'emailVerificationTokenExpiresAt',
+      type: 'date',
+      admin: { hidden: true },
+    },
+    // Failed login tracking
+    {
+      name: 'failedLoginAttempts',
+      type: 'number',
+      defaultValue: 0,
+      admin: { hidden: true },
+    },
+    {
+      name: 'lastFailedLoginAt',
+      type: 'date',
+      admin: { hidden: true },
+    },
+    // Password reset
+    {
+      name: 'resetPasswordToken',
+      type: 'text',
+      admin: { hidden: true },
+    },
+    {
+      name: 'resetPasswordTokenExpiresAt',
       type: 'date',
       admin: { hidden: true },
     },

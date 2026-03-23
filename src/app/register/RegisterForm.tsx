@@ -2,7 +2,6 @@
 
 import React, { useActionState, useState } from 'react'
 import { useFormStatus } from 'react-dom'
-import { useTranslation } from '@payloadcms/ui'
 import { registerAction, type RegisterState } from './actions'
 
 const initialState: RegisterState = {}
@@ -71,9 +70,7 @@ function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: st
   )
 }
 
-export default function RegisterForm() {
-  const { i18n } = useTranslation()
-  const lang: Lang = i18n.language === 'en' ? 'en' : 'hu'
+export default function RegisterForm({ lang }: { lang: Lang }) {
 
   const [state, formAction] = useActionState(registerAction, initialState)
   const [password, setPassword] = useState('')

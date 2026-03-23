@@ -2,13 +2,11 @@
 
 import React from 'react'
 import Image from 'next/image'
-
-import { useAppIcon } from './useAppIcon'
-import { useAppTitle } from './useAppTitle'
+import logo from '@/app/public/logo.png'
 
 export const Logo = () => {
-  const { src, alt } = useAppIcon()
-  const appTitle = useAppTitle()
+  const { src, alt } = { src: logo, alt: 'App icon' }
+  const appTitle = 'Customer Portal'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center' }}>

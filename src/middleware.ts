@@ -38,9 +38,17 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // ── 4. Guard /login/setup-mfa — must have the MFA setup pending cookie ───
+  if (pathname === '/login/setup-mfa') {
+    const hasMfaSetup = request.cookies.has('payload-mfa-setup')
+    if (!hasMfaSetup) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login/2fa'],
+  matcher: ['/admin/:path*', '/login/2fa', '/login/setup-mfa'],
 }

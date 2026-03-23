@@ -21,7 +21,7 @@ function layout(title: string, body: string): string {
           <tr>
             <td style="background:#ffffff;border-radius:12px 12px 0 0;padding:32px 40px 24px;border-bottom:1px solid #e4e4e7;">
               <a href="${appUrl}" style="text-decoration:none;font-size:20px;font-weight:700;color:#18181b;">
-                ERP Portál
+                Customer Portal
               </a>
             </td>
           </tr>
@@ -129,7 +129,7 @@ export function registrationConfirmationTemplate(
     ].join(''),
   )
 
-  return { subject: 'E-mail cím megerősítése — ERP Portál', html }
+  return { subject: 'E-mail cím megerősítése — Customer Portal', html }
 }
 
 /**
@@ -145,7 +145,7 @@ export function registrationSuccessTemplate(user: UserData): { subject: string; 
       h1('Fiókja aktiválva!'),
       p(`Kedves <strong>${user.lastName} ${user.firstName}</strong>,`),
       p(
-        'Regisztrációja sikeresen megerősítésre került. Bejelentkezhet az ERP Portálra ' +
+        'Regisztrációja sikeresen megerősítésre került. Bejelentkezhet az Customer Portalra ' +
           'az alábbi gombra kattintva.',
       ),
       button('Bejelentkezés', `${appUrl}/admin/login`),
@@ -154,7 +154,66 @@ export function registrationSuccessTemplate(user: UserData): { subject: string; 
     ].join(''),
   )
 
-  return { subject: 'Sikeres regisztráció — ERP Portál', html }
+  return { subject: 'Sikeres regisztráció — Customer Portal', html }
+}
+
+/**
+ * Failed login alert — sent when multiple consecutive failed attempts are detected.
+ */
+export function failedLoginAttemptsTemplate(
+  user: UserData,
+  attempts: number,
+  resetUrl: string,
+): { subject: string; html: string } {
+  const html = layout(
+    'Sikertelen bejelentkezési kísérletek',
+    [
+      h1('Gyanús bejelentkezési tevékenység'),
+      p(`Kedves <strong>${user.lastName} ${user.firstName}</strong>,`),
+      p(
+        `Értesítjük, hogy az Ön fiókjához (<strong>${user.email}</strong>) az elmúlt időszakban ` +
+          `<strong>${attempts} egymást követő sikertelen bejelentkezési kísérlet</strong> történt.`,
+      ),
+      p(
+        'Ha nem Ön próbált bejelentkezni, javasoljuk, hogy azonnal változtassa meg jelszavát az alábbi gombra kattintva.',
+      ),
+      button('Jelszó megváltoztatása', resetUrl),
+      p(`Ha a gomb nem működik, másolja be ezt a linket a böngészőjébe:<br><a href="${resetUrl}" style="color:#22c55e;word-break:break-all;">${resetUrl}</a>`),
+      p(
+        'Ha Ön próbált bejelentkezni és elfelejtette jelszavát, szintén a fenti gombbal tud újat beállítani.',
+      ),
+    ].join(''),
+  )
+
+  return { subject: `Sikertelen bejelentkezési kísérletek — Customer Portal`, html }
+}
+
+/**
+ * Password reset — sent when user requests a password reset link.
+ */
+export function passwordResetTemplate(
+  user: UserData,
+  resetUrl: string,
+): { subject: string; html: string } {
+  const html = layout(
+    'Jelszó visszaállítása',
+    [
+      h1('Jelszó visszaállítása'),
+      p(`Kedves <strong>${user.lastName} ${user.firstName}</strong>,`),
+      p(
+        'Jelszó-visszaállítási kérést kaptunk a fiókjához. Kattintson az alábbi gombra az új jelszó beállításához. ' +
+          'A link <strong>1 óráig</strong> érvényes.',
+      ),
+      button('Jelszó visszaállítása', resetUrl),
+      p(`Ha a gomb nem működik, másolja be ezt a linket a böngészőjébe:<br><a href="${resetUrl}" style="color:#22c55e;word-break:break-all;">${resetUrl}</a>`),
+      p(
+        'Ha nem Ön kérte a jelszó visszaállítását, hagyja figyelmen kívül ezt az üzenetet — ' +
+          'jelszava nem változik.',
+      ),
+    ].join(''),
+  )
+
+  return { subject: 'Jelszó visszaállítása — Customer Portal', html }
 }
 
 /**
@@ -171,7 +230,7 @@ export function staffNewUserNotificationTemplate(
     [
       h1('Új ügyfél regisztrált'),
       p(`Kedves <strong>${recipientName}</strong>,`),
-      p('Egy új ügyfél regisztrált az ERP Portálra. Az adatok az alábbiakban láthatók.'),
+      p('Egy új ügyfél regisztrált az Customer Portalra. Az adatok az alábbiakban láthatók.'),
       infoBox([
         ['Név', `${newUser.lastName} ${newUser.firstName}`],
         ['E-mail', newUser.email],

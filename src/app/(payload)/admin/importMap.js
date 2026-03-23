@@ -1,6 +1,4 @@
 import { default as default_0311d3977ee18b16dc8e61eb51e1c8c1 } from 'src/app/components/Admin/AdminListPaginationClient.tsx'
-import { default as default_3b90ed3f15f2908705b990a707094b46 } from 'src/app/components/Settings/AppIconField.tsx'
-import { default as default_7ad928e0eded224b1594f5a8c02deb6d } from 'src/app/components/Settings/AppTitleField.tsx'
 import { default as default_929767bbcf86f46bf0390c0203442302 } from 'src/app/components/Misc/UserIcon.tsx'
 import { default as default_2bd602404f41477b760235161507022c } from 'src/app/components/Admin/CustomNav.tsx'
 import { default as default_6b5d2347f57209307bce17b5cc7f57b2 } from 'src/app/components/Misc/Icon.tsx'
@@ -10,8 +8,6 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 
 export const importMap = {
   "src/app/components/Admin/AdminListPaginationClient.tsx#default": default_0311d3977ee18b16dc8e61eb51e1c8c1,
-  "src/app/components/Settings/AppIconField.tsx#default": default_3b90ed3f15f2908705b990a707094b46,
-  "src/app/components/Settings/AppTitleField.tsx#default": default_7ad928e0eded224b1594f5a8c02deb6d,
   "src/app/components/Misc/UserIcon.tsx#default": default_929767bbcf86f46bf0390c0203442302,
   "src/app/components/Admin/CustomNav.tsx#default": default_2bd602404f41477b760235161507022c,
   "src/app/components/Misc/Icon.tsx#default": default_6b5d2347f57209307bce17b5cc7f57b2,

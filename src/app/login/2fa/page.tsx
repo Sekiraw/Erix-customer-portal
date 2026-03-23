@@ -15,19 +15,17 @@ export default async function TwoFactorPage() {
   const lang = acceptLang.startsWith('en') ? 'en' : 'hu'
 
   return (
-    <main className="relative min-h-screen w-full overflow-hidden px-4 py-8">
-      <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-120 items-center">
-        <div className="w-full p-10 text-foreground">
-          <div className="mb-6 flex flex-col items-center text-center gap-2">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-chart-3/10 text-chart-3 text-2xl mb-2">
-              🔐
-            </div>
-            <h1 className="text-3xl font-bold text-black">{copy.title[lang]}</h1>
-            <p className="text-sm text-black/60">{copy.subtitle[lang]}</p>
+    <main className="flex min-h-screen w-full flex-col items-center px-4 py-10">
+      <div className="my-auto w-full max-w-sm">
+        <div className="mb-6 flex flex-col items-center text-center gap-2">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-chart-3/10 text-chart-3 text-2xl mb-2">
+            🔐
           </div>
-
-          <TwoFactorForm lang={lang} />
+          <h1 className="text-3xl font-bold text-black">{copy.title[lang]}</h1>
+          <p className="text-sm text-black/60">{copy.subtitle[lang]}</p>
         </div>
+
+        <TwoFactorForm lang={lang} />
       </div>
     </main>
   )

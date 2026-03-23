@@ -19,5 +19,5 @@ export const isManagerRole = (role: UserRole | undefined | null): boolean => {
   return (MANAGER_ROLES as readonly string[]).includes(role)
 }
 
-export const isCustomerRole = (role: UserRole | undefined | null): boolean =>
-  role === 'customer'
+export const isClientRole = (role: UserRole | undefined | null): boolean =>
+  role === 'client'

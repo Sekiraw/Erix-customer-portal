@@ -1,7 +1,7 @@
 import * as OTPAuth from 'otpauth'
 import QRCode from 'qrcode'
 
-const ISSUER = 'ERP Portál'
+const ISSUER = 'Customer Portal'
 
 /** Generate a new TOTP secret and the otpauth:// URI for QR scanning. */
 export function generateTotpSecret(userEmail: string): {

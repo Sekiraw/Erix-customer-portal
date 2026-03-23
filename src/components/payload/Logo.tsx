@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from '@/assets/logo.png' // Make sure you have your correct images referenced here
+import logo from '@/app/public/logo.png'
 import logoDark from '@/assets/logo-dark.png' // Make sure you have your correct images referenced here
 import Image from 'next/image'
 

@@ -99,7 +99,7 @@ export async function registerAction(
         lastName,
         email,
         password,
-        role: 'customer',
+        role: 'client',
         termsAcceptedAt: new Date().toISOString(),
         termsAcceptedIp: ip,
         termsVersion: TERMS_VERSION,

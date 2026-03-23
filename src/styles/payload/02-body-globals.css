@@ -1,3 +1,14 @@
+/* Ensure padding is included in element widths (Tailwind Preflight may not
+   run on these pages since custom.css doesn't @import 'tailwindcss'). */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Prevent horizontal scroll — nothing on auth/admin pages needs it. */
+html {
+  overflow-x: hidden;
+}
+
 /* CRM Admin Layout */
 body {
   font-family:

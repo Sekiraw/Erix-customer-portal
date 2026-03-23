@@ -62,34 +62,3 @@ export async function enableTwoFactorAction(
   return { success: true }
 }
 
-/** Disable 2FA for the current user. */
-export async function disableTwoFactorAction(
-  _prev: SetupState | void,
-  formData: FormData,
-): Promise<SetupState | void> {
-  const { user } = await getUser()
-  if (!user) return { error: copy.notLoggedIn['hu'] }
-
-  const code = formData.get('code')?.toString().trim().replace(/\s/g, '')
-  const locale = formData.get('locale')?.toString() === 'en' ? 'en' : 'hu'
-  const typedUser = user as User
-
-  if (!code || !typedUser.twoFactorSecret || !verifyTotpCode(typedUser.twoFactorSecret, code)) {
-    return { error: copy.invalidCode[locale] }
-  }
-
-  try {
-    const payload = await getPayload({ config })
-    await payload.update({
-      collection: 'users',
-      id: typedUser.id,
-      data: { twoFactorEnabled: false, twoFactorSecret: null },
-      overrideAccess: true,
-    })
-  } catch {
-    return { error: copy.generic[locale] }
-  }
-
-  revalidatePath('/account/2fa')
-  return { success: true }
-}

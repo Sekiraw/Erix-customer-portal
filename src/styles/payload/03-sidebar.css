@@ -191,3 +191,19 @@
 .crm-sidebar__link--logout .crm-sidebar__link-icon {
   opacity: 0.8;
 }
+
+/* ── Mobile: sidebar is permanently in icon-only mode ───────────────────── */
+/* These rules mirror .crm-sidebar--collapsed but load with the HTML,         */
+/* so there is never a flash of the expanded sidebar on narrow viewports.     */
+@media (max-width: 768px) {
+  .crm-sidebar                              { width: 72px; }
+  .crm-sidebar .crm-sidebar__collapse-btn   { display: none; }
+  .crm-sidebar .crm-sidebar__brand          { padding: 0; justify-content: center; }
+  .crm-sidebar .crm-sidebar__brand-text     { display: none; }
+  .crm-sidebar .crm-sidebar__section-label  { display: none; }
+  .crm-sidebar .crm-sidebar__nav            { padding: 0 10px; }
+  .crm-sidebar .crm-sidebar__link           { justify-content: center; padding: 10px; gap: 0; }
+  .crm-sidebar .crm-sidebar__link-label     { display: none; }
+  .crm-sidebar .crm-sidebar__badge          { display: none; }
+  .crm-sidebar .crm-sidebar__footer         { margin-left: 10px; margin-right: 10px; }
+}
